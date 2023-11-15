@@ -1,5 +1,7 @@
 import type { Device } from "./devices";
 
+export const HEARTBEATS = "heartbeats";
+
 export interface Kernel {
   arch: string;
   hostname: string;
