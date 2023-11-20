@@ -1,12 +1,10 @@
-import type { ActionFunction } from "@remix-run/cloudflare";
+import type { ActionFunction, LoaderFunction } from "@remix-run/cloudflare";
 import { HTTPError } from "~/utils/error";
 import { GET } from "./get";
 import { POST } from "./post";
 
 export const action: ActionFunction = async (data) => {
   switch (data.request.method) {
-    case "GET":
-      return GET(data);
     case "POST":
       return POST(data);
     default:
@@ -15,3 +13,5 @@ export const action: ActionFunction = async (data) => {
       }).json();
   }
 };
+
+export const loader: LoaderFunction = GET;

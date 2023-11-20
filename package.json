@@ -14,6 +14,7 @@
     "typecheck": "tsc"
   },
   "dependencies": {
+    "@neondatabase/serverless": "^0.6.0",
     "@remix-run/cloudflare": "^2.2.0",
     "@remix-run/cloudflare-pages": "^2.2.0",
     "@remix-run/css-bundle": "^2.2.0",
@@ -21,7 +22,6 @@
     "isbot": "^3.6.8",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "realm-web": "^2.0.0",
     "sanitize.css": "^13.0.0",
     "uid": "^2.0.2"
   },

@@ -12,13 +12,14 @@ export const POST: ActionFunction = async (data) => {
       throw new HTTPError("'location' field is missing in request body.", 400);
     }
 
-    const device = await createDevice(
-      location,
+    const id = await createDevice(
+      location.trim(),
       data.context as unknown as ContextEnv
     );
 
-    return json({ id: device.insertedId });
+    return json({ id });
   } catch (e) {
+    console.error(e);
     if ((e as Error).name === HTTP_ERROR) {
       return (e as HTTPError).json();
     }
