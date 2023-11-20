@@ -31,6 +31,6 @@ CREATE TABLE heartbeats (
   kernel_id TEXT REFERENCES kernels(id) ON DELETE SET NULL,
   operating_system_id TEXT REFERENCES operating_systems(id) ON DELETE SET NULL,
   uptime INTEGER NOT NULL,
-  load JSONB NOT NULL,
+  load REAL[] NOT NULL,
   timestamp TIMESTAMP DEFAULT NOW()
 );

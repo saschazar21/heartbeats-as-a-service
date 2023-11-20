@@ -1,9 +1,13 @@
-import { Client } from "@neondatabase/serverless";
+import { neon } from "@neondatabase/serverless";
 
-export const getClient = async (context: ContextEnv) => {
-  const client = new Client(context.env.DB_URL);
+export const getQuery = (context: ContextEnv) => neon(context.env.DB_URL);
 
-  await client.connect();
+export const executeStatement = async (
+  context: ContextEnv,
+  statement: string,
+  values: unknown[]
+) => {
+  const sql = await getQuery(context);
 
-  return client;
+  return sql(statement, values);
 };

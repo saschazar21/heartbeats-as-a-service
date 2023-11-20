@@ -1,26 +1,13 @@
 import { getId } from "~/utils/helpers";
-import { getClient } from "../connection";
+import { executeStatement } from "../connection";
 
 export const DEVICES = "devices";
 
 export interface Device {
-  _id: string;
+  id: string;
   location: string;
   created_at: Date;
 }
-
-const executeStatement = async (
-  context: ContextEnv,
-  statement: string,
-  variables: unknown[] = []
-) => {
-  const client = await getClient(context);
-  const result = await client.query(statement, variables);
-
-  await client.end();
-
-  return result;
-};
 
 export const CREATE_DEVICE = `INSERT INTO ${DEVICES} (id, location) VALUES ($1, $2)`;
 export const createDevice = async (location: string, context: ContextEnv) => {
@@ -35,34 +22,45 @@ export const GET_DEVICE_BY_ID = `WITH device AS(
   WHERE id = $1
 ),
 heartbeats AS(
-  SELECT MAX(timestamp) as latest, COUNT(*) AS count
+  SELECT MAX(timestamp) as latest,
+  COUNT(*)::Integer AS count
   FROM heartbeats
   WHERE system_id = $1
 )
 SELECT device.*, heartbeats.count AS heartbeats, heartbeats.latest
 FROM device, heartbeats`;
 export const getDevice = async (id: string, context: ContextEnv) => {
-  const { rows } = await executeStatement(context, GET_DEVICE_BY_ID, [id]);
-  return rows;
+  return executeStatement(context, GET_DEVICE_BY_ID, [id]);
 };
 
-export const GET_DEVICES = `SELECT *
-FROM ${DEVICES}
-ORDER BY created_at DESC
-LIMIT $1
-OFFSET $2`;
+export const GET_DEVICES = `WITH data AS (
+  SELECT *
+  FROM ${DEVICES}
+  ORDER BY created_at DESC
+  LIMIT $1
+  OFFSET $2
+),
+meta AS(
+  SELECT COUNT(*) as entries,
+  CEIL(COUNT(*) / $1::REAL) as pages,
+  SUM(FLOOR($2 / $1::REAL) + 1) as page
+  FROM ${DEVICES}
+)
+SELECT jsonb_build_object(
+  'data', jsonb_agg(data),
+  'meta', jsonb_agg(meta) -> 0
+) AS data
+FROM data, meta`;
 export const getDevices = async (
   size: number,
   offset: number,
   context: ContextEnv
 ) => {
-  const { rows } = await executeStatement(context, GET_DEVICES, [size, offset]);
-  return rows;
+  const rows = await executeStatement(context, GET_DEVICES, [size, offset]);
+  return rows[0].data;
 };
 
 export const DELETE_DEVICE_BY_ID = `DELETE FROM ${DEVICES} WHERE id = $1`;
 export const deleteDevice = async (id: string, context: ContextEnv) => {
-  const { rows } = await executeStatement(context, DELETE_DEVICE_BY_ID, [id]);
-
-  return rows;
+  return executeStatement(context, DELETE_DEVICE_BY_ID, [id]);
 };
