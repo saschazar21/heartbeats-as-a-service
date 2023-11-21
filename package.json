@@ -2,7 +2,7 @@
   "name": "heartbeat-as-a-service",
   "short_name": "Heartbeat API",
   "description": "An API collecting system heartbeats.",
-  "color": "#f2eacf",
+  "color": "#ef7b6c",
   "private": true,
   "sideEffects": false,
   "type": "module",

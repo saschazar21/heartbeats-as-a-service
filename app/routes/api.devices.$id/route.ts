@@ -1,4 +1,4 @@
-import { ActionFunction, LoaderFunction } from "@remix-run/cloudflare";
+import type { ActionFunction, LoaderFunction } from "@remix-run/cloudflare";
 import { HTTPError } from "~/utils/error";
 import { DELETE } from "./delete";
 import { GET } from "./get";
