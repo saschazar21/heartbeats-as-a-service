@@ -2,22 +2,47 @@
 @import url(./_typography.css);
 
 :root {
+  /* https://coolors.co/ef7b6c-000000-f7f3e3-f2eacf-73ab84 */
   /* CSS HEX */
-  --cinnabar: #ea5a47ff;
+  --salmon: #ef7b6cff;
   --black: #000000ff;
   --cosmic-latte: #f7f3e3ff;
-  --silver: #b3b6b7ff;
-  --viridian: #4a7c59ff;
+  --parchment: #f2eacfff;
+  --cambridge-blue: #73ab84ff;
 
   --color-text: var(--black);
   --color-bg: var(--cosmic-latte);
-  --color-bg-dark: var(--silver);
-  --color-alert: var(--cinnabar);
-  --color-special: var(--viridian);
+  --color-bg-muted: var(--parchment);
+  --color-alert: var(--salmon);
+  --color-special: var(--cambridge-blue);
+
+  --color-black: var(--black);
+  --color-grey: var(--silver);
+
+  --space-s: 0.5em;
+  --space-m: 0.75em;
+  --space-l: 1em;
+  --space-xl: 1.25em;
+
+  --border-radius-s: 2px;
+  --border-radius-m: 6px;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
+    /* https://coolors.co/811c0e-141414-f7f3e3-1d1f20-365940 */
+    /* CSS HEX */
+    --barn-red: #811c0eff;
+    --night: #141414ff;
+    --cosmic-latte: #f7f3e3ff;
+    --eerie-black: #1d1f20ff;
+    --hunter-green: #365940ff;
+
+    --color-text: var(--cosmic-latte);
+    --color-bg: var(--night);
+    --color-bg-muted: var(--eerie-black);
+    --color-alert: var(--barn-red);
+    --color-special: var(--hunter-green);
   }
 }
 
@@ -32,6 +57,8 @@ body {
   flex-direction: column;
   min-height: 100vh;
   width: 100vw;
+  color: var(--color-text);
+  background-color: var(--color-bg-muted);
   overflow: hidden;
 }
 

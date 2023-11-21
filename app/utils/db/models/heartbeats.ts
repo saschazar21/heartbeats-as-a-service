@@ -38,6 +38,13 @@ export interface Heartbeat {
   load: number[];
 }
 
+export const COUNT_HEARTBEATS = `SELECT COUNT(*)::INTEGER FROM ${HEARTBEATS}`;
+export const countHeartbeats = async (context: ContextEnv) => {
+  const rows = await executeStatement(context, COUNT_HEARTBEATS);
+
+  return rows[0].count;
+};
+
 export const CREATE_KERNEL = `INSERT INTO ${KERNELS} (id, arch, hostname, name, version)
 VALUES ($1, $2, $3, $4, $5)
 WHERE NOT EXISTS (SELECT 1 FROM ${KERNELS} WHERE id = $1);
@@ -67,29 +74,29 @@ export const createHeartbeat = async (
 
   return sql.transaction([
     sql(CREATE_HEARTBEAT, [
-      kernel.id,
-      os.id,
-      system.id,
+      kernel.id.trim(),
+      os.id.trim(),
+      (system.id as string).trim(),
       data.uptime,
       data.load,
     ]),
     sql(CREATE_KERNEL, [
-      kernel.id,
-      kernel.arch,
-      kernel.hostname,
-      kernel.name,
-      kernel.version,
+      kernel.id.trim(),
+      kernel.arch.trim(),
+      kernel.hostname.trim(),
+      kernel.name.trim(),
+      kernel.version.trim(),
     ]),
     sql(CREATE_OPERATING_SYSTEM, [
-      os.id,
-      os.name,
-      os.version,
+      os.id.trim(),
+      os.name.trim(),
+      os.version.trim(),
       os.build ?? null,
     ]),
     sql(CREATE_SYSTEM, [
-      system.id,
-      system.cpu,
-      system.model_name,
+      (system.id as string).trim(),
+      system.cpu.trim(),
+      system.model_name.trim(),
       system.serial ?? null,
     ]),
   ]);

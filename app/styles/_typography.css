@@ -17,9 +17,32 @@
   --font-size-h5: 1.563rem;
   --font-size-h6: 1.25rem;
   --font-size-small: 0.8rem;
+
+  --fw-normal: 400;
+  --fw-bold: 600;
+
+  --lh-condensed: 1;
+  --lh-normal: 1.15;
+  --lh-extended: 1.65;
 }
 
 body {
   font-family: var(--font-family-sans);
   font-size: var(--font-size-normal);
+  line-height: var(--lh-normal);
+  font-weight: var(--fw-normal);
+}
+
+h1 {
+  line-height: var(--lh-extended);
+}
+
+:where(h2, h3, h4, h5, h6) {
+  margin: 0;
+  margin-bottom: var(--space-s);
+  line-height: var(--lh-normal);
+}
+
+:where(h1, h2, h3, h4, h5, h6) {
+  font-weight: var(--fw-bold);
 }

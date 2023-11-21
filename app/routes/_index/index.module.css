@@ -4,7 +4,7 @@
   }
 
   15% {
-    transform: scale(1.15) rotate(5deg);
+    transform: scale(1.05) rotate(3deg);
   }
 
   27% {
@@ -12,7 +12,7 @@
   }
 
   40% {
-    transform: scale(1.1) rotate(-5deg);
+    transform: scale(1.02) rotate(-3deg);
   }
 
   100% {
@@ -28,7 +28,7 @@
 }
 
 .icon {
-  --size: 128px;
+  --size: 256px;
 
   height: var(--size);
   width: var(--size);
@@ -43,11 +43,54 @@
 }
 
 .frame {
-  stroke: var(--color-text);
+  stroke: var(--color-black);
+}
+
+.container {
+  --gap: var(--space-l);
+
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap);
+  align-items: stretch;
+}
+
+.data {
+  --size: 128px;
+
+  flex: 1 0 calc(50% - var(--gap));
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: var(--gap);
+  border-radius: var(--border-radius-m);
+  padding: var(--space-xl);
+  min-width: var(--size);
+  width: 100%;
+  background-color: var(--color-bg);
+  font-family: var(--font-family-mono);
+  font-weight: var(--fw-bold);
+  text-align: center;
+  text-transform: lowercase;
+}
+
+.data > h3 {
+  font-size: var(--font-size-normal);
+  font-weight: var(--fw-normal);
 }
 
 @media (min-width: 768px) {
   .icon {
     --size: 372px;
+  }
+
+  .container {
+    flex-direction: row;
+  }
+
+  .data {
+    --size: 192px;
+
+    font-size: var(--font-size-h6);
   }
 }

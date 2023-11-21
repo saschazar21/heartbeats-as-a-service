@@ -9,6 +9,13 @@ export interface Device {
   created_at: Date;
 }
 
+export const COUNT_DEVICES = `SELECT COUNT(*)::INTEGER FROM ${DEVICES}`;
+export const countDevices = async (context: ContextEnv) => {
+  const rows = await executeStatement(context, COUNT_DEVICES);
+
+  return rows[0].count;
+};
+
 export const CREATE_DEVICE = `INSERT INTO ${DEVICES} (id, location) VALUES ($1, $2)`;
 export const createDevice = async (location: string, context: ContextEnv) => {
   const id = getId();
