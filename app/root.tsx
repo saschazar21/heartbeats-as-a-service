@@ -1,8 +1,8 @@
+import { LiveReload, useSWEffect } from "@remix-pwa/sw";
 import type { LinksFunction, MetaFunction } from "@remix-run/cloudflare";
 import { cssBundleHref } from "@remix-run/css-bundle";
 import {
   Links,
-  LiveReload,
   Meta,
   Outlet,
   Scripts,
@@ -36,6 +36,8 @@ export const meta: MetaFunction = () => [
 ];
 
 export default function App() {
+  useSWEffect();
+
   return (
     <html lang="en">
       <head>

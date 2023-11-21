@@ -1,4 +1,4 @@
-/** @type {import('@remix-run/dev').AppConfig} */
+/** @type {import('@remix-pwa/dev').WorkerConfig} */
 export default {
   ignoredRouteFiles: ["**/.*"],
   server: "./server.ts",
@@ -12,4 +12,6 @@ export default {
   // appDirectory: "app",
   // assetsBuildDirectory: "public/build",
   // publicPath: "/build/",
+  workerName: "sw",
+  workerMinify: true,
 };
