@@ -6,6 +6,7 @@ CREATE TABLE devices (
 
 CREATE TABLE kernels (
   id TEXT PRIMARY KEY,
+  arch TEXT NOT NULL,
   hostname TEXT NOT NULL,
   name TEXT NOT NULL,
   version TEXT NOT NULL
@@ -27,9 +28,9 @@ CREATE TABLE systems (
 
 CREATE TABLE heartbeats (
   id BIGSERIAL PRIMARY KEY,
-  system_id TEXT REFERENCES systems(id) ON DELETE SET NULL,
-  kernel_id TEXT REFERENCES kernels(id) ON DELETE SET NULL,
-  operating_system_id TEXT REFERENCES operating_systems(id) ON DELETE SET NULL,
+  system TEXT REFERENCES systems(id) ON DELETE SET NULL,
+  kernel TEXT REFERENCES kernels(id) ON DELETE SET NULL,
+  operating_system TEXT REFERENCES operating_systems(id) ON DELETE SET NULL,
   uptime INTEGER NOT NULL,
   load REAL[] NOT NULL,
   timestamp TIMESTAMP DEFAULT NOW()

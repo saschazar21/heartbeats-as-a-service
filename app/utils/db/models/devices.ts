@@ -16,6 +16,13 @@ export const countDevices = async (context: ContextEnv) => {
   return rows[0].count;
 };
 
+export const CHECK_DEVICE_BY_ID = `SELECT 1 FROM ${DEVICES} WHERE id = $1`;
+export const checkDevice = async (id: string, context: ContextEnv) => {
+  const rows = await executeStatement(context, CHECK_DEVICE_BY_ID, [id]);
+
+  return rows.length ? id : null;
+};
+
 export const CREATE_DEVICE = `INSERT INTO ${DEVICES} (id, location) VALUES ($1, $2)`;
 export const createDevice = async (location: string, context: ContextEnv) => {
   const id = getId();
@@ -32,7 +39,7 @@ heartbeats AS(
   SELECT MAX(timestamp) as latest,
   COUNT(*)::Integer AS count
   FROM heartbeats
-  WHERE system_id = $1
+  WHERE system = $1
 )
 SELECT device.*, heartbeats.count AS heartbeats, heartbeats.latest
 FROM device, heartbeats`;

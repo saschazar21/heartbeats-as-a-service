@@ -31,11 +31,19 @@ export interface System {
 export interface Heartbeat {
   id: string;
   kernel: Kernel;
-  os: OS;
+  operating_system: OS;
   system: System;
   timestamp: string;
   uptime: number;
   load: number[];
+}
+
+export interface GetHeartbeatsParams {
+  size: number;
+  offset: number;
+  from: string | null;
+  to: string | null;
+  device: string | null;
 }
 
 export const COUNT_HEARTBEATS = `SELECT COUNT(*)::INTEGER FROM ${HEARTBEATS}`;
@@ -46,21 +54,21 @@ export const countHeartbeats = async (context: ContextEnv) => {
 };
 
 export const CREATE_KERNEL = `INSERT INTO ${KERNELS} (id, arch, hostname, name, version)
-VALUES ($1, $2, $3, $4, $5)
+SELECT $1, $2, $3, $4, $5
 WHERE NOT EXISTS (SELECT 1 FROM ${KERNELS} WHERE id = $1);
 `;
 
 export const CREATE_OPERATING_SYSTEM = `INSERT INTO ${OPERATING_SYSTEMS} (id, name, version, build)
-VALUES ($1, $2, $3, $4)
+SELECT $1, $2, $3, $4
 WHERE NOT EXISTS (SELECT 1 FROM ${OPERATING_SYSTEMS} WHERE id = $1);
 `;
 
 export const CREATE_SYSTEM = `INSERT INTO ${SYSTEMS} (id, cpu, model_name, serial)
-VALUES ($1, $2, $3, $4)
+SELECT $1, $2, $3, $4
 WHERE NOT EXISTS (SELECT 1 FROM ${SYSTEMS} WHERE id = $1);
 `;
 
-export const CREATE_HEARTBEAT = `INSERT INTO ${HEARTBEATS} (kernel_id, operating_system_id, system_id, uptime, load)
+export const CREATE_HEARTBEAT = `INSERT INTO ${HEARTBEATS} (kernel, operating_system, system, uptime, load)
 VALUES ($1, $2, $3, $4, $5)
 RETURNING id;
 `;
@@ -69,17 +77,10 @@ export const createHeartbeat = async (
   data: Omit<Heartbeat, "id" | "timestamp">,
   context: ContextEnv
 ) => {
-  const { kernel, os, system } = data;
+  const { kernel, operating_system, system } = data;
   const sql = await getQuery(context);
 
   return sql.transaction([
-    sql(CREATE_HEARTBEAT, [
-      kernel.id.trim(),
-      os.id.trim(),
-      (system.id as string).trim(),
-      data.uptime,
-      data.load,
-    ]),
     sql(CREATE_KERNEL, [
       kernel.id.trim(),
       kernel.arch.trim(),
@@ -88,10 +89,10 @@ export const createHeartbeat = async (
       kernel.version.trim(),
     ]),
     sql(CREATE_OPERATING_SYSTEM, [
-      os.id.trim(),
-      os.name.trim(),
-      os.version.trim(),
-      os.build ?? null,
+      operating_system.id.trim(),
+      operating_system.name.trim(),
+      operating_system.version.trim(),
+      operating_system.build ?? null,
     ]),
     sql(CREATE_SYSTEM, [
       (system.id as string).trim(),
@@ -99,17 +100,24 @@ export const createHeartbeat = async (
       system.model_name.trim(),
       system.serial ?? null,
     ]),
+    sql(CREATE_HEARTBEAT, [
+      kernel.id.trim(),
+      operating_system.id.trim(),
+      (system.id as string).trim(),
+      data.uptime,
+      data.load,
+    ]),
   ]);
 };
 
-export const GET_HEARTBEAT = `SELECT id, uptime, load, timestamp,
-to_jsonb(${KERNELS}.*) as ${KERNELS},
-to_jsonb(${OPERATING_SYSTEMS}.*) as ${OPERATING_SYSTEMS},
-to_jsonb(${SYSTEMS}.*) as ${SYSTEMS}
+export const GET_HEARTBEAT = `SELECT ${HEARTBEATS}.id, uptime, load, timestamp,
+to_jsonb(${KERNELS}.*) as kernel,
+to_jsonb(${OPERATING_SYSTEMS}.*) as operating_system,
+to_jsonb(${SYSTEMS}.*) as system
 FROM ${HEARTBEATS}
-JOIN ${KERNELS} on ${HEARTBEATS}.kernel_id = ${KERNELS}.id
-JOIN ${OPERATING_SYSTEMS} on ${HEARTBEATS}.operating_system_id = ${OPERATING_SYSTEMS}.id
-JOIN ${SYSTEMS} on ${HEARTBEATS}.system_id = ${SYSTEMS}.id`;
+JOIN ${KERNELS} on ${HEARTBEATS}.kernel = ${KERNELS}.id
+JOIN ${OPERATING_SYSTEMS} on ${HEARTBEATS}.operating_system = ${OPERATING_SYSTEMS}.id
+JOIN ${SYSTEMS} on ${HEARTBEATS}.system = ${SYSTEMS}.id`;
 
 export const GET_HEARTBEAT_BY_ID = `${GET_HEARTBEAT}
 WHERE id = $1;`;
@@ -119,6 +127,9 @@ export const getHeartbeat = async (id: number, context: ContextEnv) => {
 
 export const GET_HEARTBEATS = `WITH data AS (
   ${GET_HEARTBEAT}
+  WHERE ((timestamp BETWEEN $3 AND $4) OR $3 IS NULL OR $4 IS NULL)
+  AND ((${HEARTBEATS}.system = $5) OR $5 IS NULL)
+  ORDER BY timestamp DESC
   LIMIT $1
   OFFSET $2
 ),
@@ -128,16 +139,21 @@ meta AS (
   SUM(FLOOR($2 / $1::REAL) + 1) as page
 )
 SELECT jsonb_build_object(
-  'data': jsonb_agg(data),
-  'meta': jsonb_agg(meta) -> 0
+  'data', jsonb_agg(data),
+  'meta', jsonb_agg(meta) -> 0
 ) as data
 FROM data, meta`;
 export const getHeartbeats = async (
-  size: number,
-  offset: number,
+  { size, offset, from, to, device }: GetHeartbeatsParams,
   context: ContextEnv
 ) => {
-  const rows = await executeStatement(context, GET_HEARTBEATS, [size, offset]);
+  const rows = await executeStatement(context, GET_HEARTBEATS, [
+    size,
+    offset,
+    from,
+    to,
+    device,
+  ]);
 
   return rows[0].data;
 };

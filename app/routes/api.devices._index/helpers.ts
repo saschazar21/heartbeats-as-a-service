@@ -1,21 +1,10 @@
 import type { ActionFunctionArgs } from "@remix-run/cloudflare";
-import { HTTPError } from "~/utils/error";
-
-const bearerRegExp = /^bearer\s(?<token>[^\s]+)$/i;
+import { HTTPError, HTTP_ERROR } from "~/utils/error";
+import { parseBearerToken } from "~/utils/helpers";
 
 export const validateAuth = ({ context, request }: ActionFunctionArgs) => {
-  const bearer = request.headers.get("authorization");
-
-  if (!bearer?.length) {
-    throw new HTTPError("Unauthorized", 401, { "www-authenticate": "Bearer" });
-  }
   try {
-    const result = bearerRegExp.exec(bearer ?? "");
-    const token = result?.groups?.token;
-
-    if (!token?.length) {
-      throw new Error("No bearer token present.");
-    }
+    const token = parseBearerToken(request);
 
     if (token !== (context.env as Record<string, string>).API_KEY) {
       throw new Error("Token/API key mismatch.");
@@ -23,6 +12,9 @@ export const validateAuth = ({ context, request }: ActionFunctionArgs) => {
 
     return true;
   } catch (e) {
+    if ((e as HTTPError).name === HTTP_ERROR) {
+      throw e;
+    }
     throw new HTTPError("Forbidden", 403);
   }
 };

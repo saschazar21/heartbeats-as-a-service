@@ -8,7 +8,10 @@ import {
 } from "~/utils/db/models/heartbeats";
 import { HTTPError, HTTP_ERROR } from "~/utils/error";
 
-const validatePayload = (data: Omit<Heartbeat, "id" | "timestamp">) => {
+const validatePayload = (
+  data: Omit<Heartbeat, "id" | "timestamp">,
+  id: string
+) => {
   if (!data.load?.length || !data.uptime) {
     throw new HTTPError("heartbeat data is incomplete.", 400);
   }
@@ -21,8 +24,10 @@ const validatePayload = (data: Omit<Heartbeat, "id" | "timestamp">) => {
     throw new HTTPError("'kernel' data is incomplete.", 400);
   }
   if (
-    !data?.os ||
-    ["id", "name", "version"].some((key) => !data.os[key as keyof OS]?.length)
+    !data?.operating_system ||
+    ["id", "name", "version"].some(
+      (key) => !data.operating_system[key as keyof OS]?.length
+    )
   ) {
     throw new HTTPError("'os' data is incomplete.", 400);
   }
@@ -33,6 +38,9 @@ const validatePayload = (data: Omit<Heartbeat, "id" | "timestamp">) => {
     )
   ) {
     throw new HTTPError("'system' data is incomplete.", 400);
+  }
+  if (data.system.id !== id) {
+    throw new HTTPError("bearer token and system ID must be equal.", 400);
   }
   return true;
 };
@@ -46,13 +54,9 @@ export const POST: ActionFunction = async ({ context, request }) => {
       throw new HTTPError("content-type must be of application/json.", 400);
     }
 
-    validatePayload(body);
+    validatePayload(body, context.id as string);
 
-    const result = await createHeartbeat(
-      body,
-      context as unknown as ContextEnv
-    );
-    console.log(result);
+    await createHeartbeat(body, context as unknown as ContextEnv);
 
     return new Response(null, { status: 204 });
   } catch (e) {
