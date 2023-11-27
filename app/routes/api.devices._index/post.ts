@@ -1,10 +1,10 @@
-import type { ActionFunction } from "@remix-run/cloudflare";
-import { json } from "react-router";
+import { type ActionFunction, json } from "@remix-run/cloudflare";
 import { createDevice } from "~/utils/db/models/devices";
 import { HTTPError, HTTP_ERROR } from "~/utils/error";
 
 export const POST: ActionFunction = async (data) => {
   try {
+    const params = new URL(data.request.url).searchParams;
     const body = await data.request.formData();
 
     const location = body.get("location") as string | null;
@@ -17,7 +17,12 @@ export const POST: ActionFunction = async (data) => {
       data.context as unknown as ContextEnv
     );
 
-    return json({ id });
+    return params.get("format") === "text"
+      ? new Response(id, {
+          status: 200,
+          headers: { "content-type": "text/plain" },
+        })
+      : json({ id });
   } catch (e) {
     console.error(e);
     if ((e as Error).name === HTTP_ERROR) {
