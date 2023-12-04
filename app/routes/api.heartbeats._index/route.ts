@@ -5,9 +5,10 @@ import { validateAuth } from "./helpers";
 import { POST } from "./post";
 
 export const action: ActionFunction = async (data) => {
+  let id: string;
+
   switch (data.request.method) {
     case "POST":
-      let id: string;
       try {
         id = await validateAuth(data);
       } catch (e) {

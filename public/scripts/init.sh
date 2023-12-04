@@ -55,6 +55,6 @@ if [[ ${#API_KEY} -lt 1 ]]; then
   exit 1
 fi
 
-# register_device
+register_device
 create_script_file
-# create_cronjob
+create_cronjob
