@@ -27,20 +27,23 @@ This is a ready-to-use repository for deploying an API to Cloudflare pages, whic
 
 ## Quick start
 
-1. Copy `.env.sample` to `.dev.vars` and populate the environment variables
+1. Create tables on Neon according to the [`create_tables.sql`](create_tables.sql) migration script
+2. Copy `.env.sample` to `.dev.vars` and populate the environment variables
    ```bash
    cp .env.sample .dev.vars
    ```
-2. Install dependencies
+3. Install dependencies
    ```bash
    yarn # or npm i
    ```
-3. Start development server
+4. Start development server
    ```bash
    yarn dev # or npm run dev
    ```
 
 ## Deployment
+
+Create database tables according to 1. in [Quick start](#quick-start).
 
 Follow the guide in the [Cloudflare Docs](https://developers.cloudflare.com/pages/get-started/guide/), as it contains all the necessary information to get up and running.
 
