@@ -1,5 +1,6 @@
+import type { ActionFunctionArgs } from "@remix-run/cloudflare";
 import { uid } from "uid/secure";
-import { HTTPError } from "./error";
+import { HTTPError, HTTP_ERROR } from "./error";
 
 export const DEFAULT_PAGE_SIZE = 10;
 export const DEFAULT_UID_LENGTH = 16;
@@ -47,4 +48,21 @@ export const parseBearerToken = (request: Request) => {
   }
 
   return token;
+};
+
+export const validateBearer = ({ context, request }: ActionFunctionArgs) => {
+  try {
+    const token = parseBearerToken(request);
+
+    if (token !== (context.env as Record<string, string>).API_KEY) {
+      throw new Error("Token/API key mismatch.");
+    }
+
+    return true;
+  } catch (e) {
+    if ((e as HTTPError).name === HTTP_ERROR) {
+      throw e;
+    }
+    throw new HTTPError("Forbidden", 403);
+  }
 };

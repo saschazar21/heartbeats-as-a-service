@@ -1,5 +1,5 @@
 {
-  "name": "heartbeat-as-a-service",
+  "name": "heartbeats-as-a-service",
   "short_name": "Heartbeat API",
   "description": "An API for collecting system heartbeats.",
   "color": "#ef7b6c",

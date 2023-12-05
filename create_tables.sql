@@ -31,6 +31,7 @@ CREATE TABLE heartbeats (
   system TEXT REFERENCES systems(id) ON DELETE SET NULL,
   kernel TEXT REFERENCES kernels(id) ON DELETE SET NULL,
   operating_system TEXT REFERENCES operating_systems(id) ON DELETE SET NULL,
+  ip_address TEXT NOT NULL,
   uptime INTEGER NOT NULL,
   load REAL[] NOT NULL,
   timestamp TIMESTAMP DEFAULT NOW()

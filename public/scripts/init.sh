@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 
-HOSTNAME=http://localhost:8788
-API_ENDPOINT=$HOSTNAME/api/devices
+API_HOSTNAME=http://localhost:8788
+API_ENDPOINT=$API_HOSTNAME/api/devices
 DEVICE_ID=$DEVICE_ID
 
-CLIENT_SCRIPT_URL=$HOSTNAME/scripts/client.sh
+CLIENT_SCRIPT_URL=$API_HOSTNAME/scripts/client.sh
 CLIENT_SCRIPT_LOCATION=~/.config/heartbeat.sh
 
 register_device() {

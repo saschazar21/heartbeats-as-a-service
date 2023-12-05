@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
-HOSTNAME=http://localhost:8788
-API_ENDPOINT=$HOSTNAME/api/heartbeats
+API_HOSTNAME=http://localhost:8788
+API_ENDPOINT=$API_HOSTNAME/api/heartbeats
 NEOFETCH_URL=https://raw.githubusercontent.com/dylanaraps/neofetch/master/neofetch
 NEOFETCH_LOCATION=/tmp/neofetch
 
@@ -63,11 +63,11 @@ get_os_info() {
   OS="{ \"id\": \"${distro}\""
 
   if [[ "$kernel_name" == "Darwin" ]]; then
-    OS="${OS}, \"name\": \"${codename}\", \"version:\": \"${osx_version}\", \"build\": \"${osx_build}\""
-  elif [[ $NAME && $VERSION ]]; then
-    OS="${OS}, \"name\": \"${NAME}\", \"version:\": \"${VERSION}\""
+    OS="${OS}, \"name\": \"${codename}\", \"version\": \"${osx_version}\", \"build\": \"${osx_build}\""
+  elif [[ $NAME && $VERSION:-$VERSION_ID ]]; then
+    OS="${OS}, \"name\": \"${NAME}\", \"version\": \"${VERSION:-${VERSION_ID}}\""
   else
-    OS="${OS}, \"name\": \"unknown\", \"version:\": \"unknown\""
+    OS="${OS}, \"name\": \"unknown\", \"version\": \"unknown\""
   fi
 
   OS="${OS} }"
@@ -108,7 +108,7 @@ if [[ -z $DEVICE_ID ]]; then
   exit 1
 fi
 
-if [[ -z $HOSTNAME ]]; then
+if [[ -z $API_HOSTNAME ]]; then
   echo "Hostname is not set. Exiting..."
   exit 1
 fi

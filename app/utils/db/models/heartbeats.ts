@@ -33,6 +33,7 @@ export interface Heartbeat {
   kernel: Kernel;
   operating_system: OS;
   system: System;
+  ip_address: string;
   timestamp: string;
   uptime: number;
   load: number[];
@@ -68,8 +69,8 @@ SELECT $1, $2, $3, $4
 WHERE NOT EXISTS (SELECT 1 FROM ${SYSTEMS} WHERE id = $1);
 `;
 
-export const CREATE_HEARTBEAT = `INSERT INTO ${HEARTBEATS} (kernel, operating_system, system, uptime, load)
-VALUES ($1, $2, $3, $4, $5)
+export const CREATE_HEARTBEAT = `INSERT INTO ${HEARTBEATS} (kernel, operating_system, system, ip_address, uptime, load)
+VALUES ($1, $2, $3, $4, $5, $6)
 RETURNING id;
 `;
 
@@ -78,7 +79,7 @@ export const createHeartbeat = async (
   context: ContextEnv
 ) => {
   const { kernel, operating_system, system } = data;
-  const sql = await getQuery(context);
+  const sql = getQuery(context);
 
   return sql.transaction([
     sql(CREATE_KERNEL, [
@@ -104,6 +105,7 @@ export const createHeartbeat = async (
       kernel.id.trim(),
       operating_system.id.trim(),
       (system.id as string).trim(),
+      data.ip_address,
       data.uptime,
       data.load,
     ]),

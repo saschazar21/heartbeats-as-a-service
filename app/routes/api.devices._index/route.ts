@@ -1,14 +1,14 @@
 import type { ActionFunction, LoaderFunction } from "@remix-run/cloudflare";
 import { HTTPError } from "~/utils/error";
+import { validateBearer } from "~/utils/helpers";
 import { GET } from "./get";
-import { validateAuth } from "./helpers";
 import { POST } from "./post";
 
 export const action: ActionFunction = async (data) => {
   switch (data.request.method) {
     case "POST":
       try {
-        validateAuth(data);
+        validateBearer(data);
       } catch (e) {
         return (e as HTTPError).json();
       }

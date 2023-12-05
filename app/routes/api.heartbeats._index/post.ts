@@ -9,7 +9,7 @@ import {
 import { HTTPError, HTTP_ERROR } from "~/utils/error";
 
 const validatePayload = (
-  data: Omit<Heartbeat, "id" | "timestamp">,
+  data: Omit<Heartbeat, "id" | "ip_address" | "timestamp">,
   id: string
 ) => {
   if (!data.load?.length || !data.uptime) {
@@ -56,7 +56,18 @@ export const POST: ActionFunction = async ({ context, request }) => {
 
     validatePayload(body, context.id as string);
 
-    await createHeartbeat(body, context as unknown as ContextEnv);
+    const ip_address =
+      request.headers.get("cf-connecting-ip") ??
+      request.headers.get("x-forwarded-for") ??
+      "0.0.0.0";
+
+    await createHeartbeat(
+      {
+        ...body,
+        ip_address,
+      },
+      context as unknown as ContextEnv
+    );
 
     return new Response(null, { status: 204 });
   } catch (e) {
